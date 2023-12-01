@@ -1,5 +1,8 @@
-// Reference: https://github.com/RobTillaart/GY521
-//            https://forum.arduino.cc/t/wire-library-use-on-nano-board/478242
+/*
+Reference:
+    Wire Nano:    https://forum.arduino.cc/t/wire-library-use-on-nano-board/478242
+    Doc MPU-6050: https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
+*/            
 
 #include<Wire.h>
 
