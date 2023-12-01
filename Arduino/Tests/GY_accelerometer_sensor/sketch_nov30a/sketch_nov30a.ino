@@ -4,7 +4,7 @@
 #include<Wire.h>
 
 #define MPU_ADDR 0x68
-#define FILTER_DIMENSION 100
+#define FILTER_DIMENSION 50
 #define READING_PERIOD 10
 #define PRINT_PERIOD 100
 
@@ -15,15 +15,13 @@ int16_t values_Y[FILTER_DIMENSION];
 int16_t values_Z[FILTER_DIMENSION];
 int index;
 
-int16_t AcX,AcY,AcZ;
 
 int16_t means(int16_t in[FILTER_DIMENSION]){
   double ret = 0;
   for(int i = 0; i < FILTER_DIMENSION; i++){
-    ret = (double) ret + in[i];
+    ret += (double) in[i];
   }
-  ret /= FILTER_DIMENSION;
-  return (int16_t) ret;
+  return (int16_t) (ret / FILTER_DIMENSION);
 }
 
 void setup(){
@@ -54,16 +52,13 @@ void loop(){
     Wire.beginTransmission(MPU_ADDR);
     Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
     Wire.endTransmission(false);
-    Wire.requestFrom(MPU_ADDR,6,true);  // request a total of 14 registers
-    AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
-    AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-    AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-    values_X[index] = AcX;
-    values_Y[index] = AcY;
-    values_Z[index] = AcZ;
+    Wire.requestFrom(MPU_ADDR,6,true);  // request a total of 6 registers
+    values_X[index]=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
+    values_Y[index]=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+    values_Z[index]=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
 
-    start_time_read = millis();
     index++;
+    start_time_read = millis();
   }
   
   if(PRINT_PERIOD <= millis() - start_time_print){
