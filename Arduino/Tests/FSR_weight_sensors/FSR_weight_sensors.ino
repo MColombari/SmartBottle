@@ -50,7 +50,7 @@ void loop() {
   values_2[index] = analogRead(IN_PIN_2);
   values_3[index] = analogRead(IN_PIN_3);
   index++;
-  // put your main code here, to run repeatedly:
+  
   if(PRINT_PERIOD <= millis() - start_time){
     Serial.print(means(values_0)); Serial.print(",");
     Serial.print(means(values_1)); Serial.print(",");
