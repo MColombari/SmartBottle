@@ -21,21 +21,9 @@
 
 // Bluetooth
 #include <SoftwareSerial.h>
-#define BT_INT_NUM 0 // PIN D2.
-#define BT_INT_PIN 2 // Respective pin.
-SoftwareSerial Bluetooth(4, 3); // RX, TX
+#define BT_INT_PIN 4 // PIN for state.
+SoftwareSerial Bluetooth(2, 3); // TX, RX (of HC-05).
 bool is_connected;
-
-void bt_set_conncet(){
-  if(digitalRead(BT_INT_PIN) == HIGH){
-    Serial.println("[Bluetooth]: Bluetooth is connected");
-    is_connected = true;
-  }
-  else{
-    Serial.println("[Bluetooth]: Bluetooth is NOT connected");
-    is_connected = false;
-  }
-}
 
 // GY-521, Accellerometer.
 #include<Wire.h>
@@ -92,9 +80,6 @@ void setup() {
   Bluetooth.begin(9600);
   is_connected = false;
   pinMode(BT_INT_PIN, INPUT);
-  attachInterrupt(BT_INT_NUM,
-                  bt_set_conncet,
-                  CHANGE);
 
   // GY-521
   Wire.begin();
@@ -133,7 +118,12 @@ void setup() {
 }
 
 void loop() {
-  if(is_connected == false){
+  // Update flag
+  if(digitalRead(BT_INT_PIN) == HIGH){
+    is_connected = true;
+  }
+  else{
+    is_connected = false;
     // We want to stop and do nothing.
     // In production we would like to be energy efficent here.
     return;
@@ -155,6 +145,9 @@ void loop() {
       is_power_saving = false;
     }
     battery_buffer_index = 0;
+    Bluetooth.print("Battery Level: ");
+    Bluetooth.print(value);
+    Bluetooth.println("%");
   }
 
   // Read value from the MPU.
@@ -222,14 +215,14 @@ void loop() {
       (dist_Y <= GY_MARGIN_DIST) &&
       (dist_Z <= GY_MARGIN_DIST)){
         if(is_still == false){
-          Serial.println("[GY-521]: Is still");
+          //Serial.println("[GY-521]: Is still");
           Bluetooth.println("[GY-521]: Is still");
         }
         is_still = true;
     }
     else{
       if(is_still == true){
-        Serial.println("[GY-521]: Is NOT still");
+        //Serial.println("[GY-521]: Is NOT still");
         Bluetooth.println("[GY-521]: Is NOT still");
       }
       is_still = false;
