@@ -17,7 +17,7 @@ Reference:
 #define UPDATE_FLAG_PERIOD 200
 
 #define G_FORCE 17000
-#define SLACK 1000
+#define SLACK 2000
 
 #define MARGIN_DIST 150
 
