@@ -2,7 +2,7 @@
 #define IN_PIN_1 A1
 #define IN_PIN_2 A2
 #define IN_PIN_3 A3
-#define FILTER_DIMENSION 100
+#define FILTER_DIMENSION 200
 #define PRINT_PERIOD 1000
 
 /*
@@ -11,19 +11,20 @@
 
 unsigned long start_time;
 
-float values_0[FILTER_DIMENSION];    // Digital filter 0.
-float values_1[FILTER_DIMENSION];    // Digital filter 1.
-float values_2[FILTER_DIMENSION];    // Digital filter 2.
-float values_3[FILTER_DIMENSION];    // Digital filter 3.
+int values_0[FILTER_DIMENSION];    // Digital filter 0.
+int values_1[FILTER_DIMENSION];    // Digital filter 1.
+int values_2[FILTER_DIMENSION];    // Digital filter 2.
+int values_3[FILTER_DIMENSION];    // Digital filter 3.
 
 int index;
 
-double means(float in[FILTER_DIMENSION]){
+int means(int in[FILTER_DIMENSION]){
   double ret = 0;
   for(int i = 0; i < FILTER_DIMENSION; i++){
     ret += in[i];
   }
-  return ret / FILTER_DIMENSION;
+  ret /= FILTER_DIMENSION;
+  return ret;
 }
 
 void setup() {
@@ -52,10 +53,18 @@ void loop() {
   index++;
   
   if(PRINT_PERIOD <= millis() - start_time){
-    Serial.print(means(values_0)); Serial.print(",");
-    Serial.print(means(values_1)); Serial.print(",");
-    Serial.print(means(values_2)); Serial.print(",");
-    Serial.println(means(values_3));
+    int tot_means[4];
+    tot_means[0] = means(values_0);
+    tot_means[1] = means(values_1);
+    tot_means[2] = means(values_2);
+    tot_means[3] = means(values_3);
+    int tot = tot_means[0] + tot_means[1] + tot_means[2] + tot_means[3];
+    tot /= 4;
+    Serial.print(map(tot, 1024, 0, 0, 100)); Serial.print(",");
+    Serial.print(tot_means[0]); Serial.print(",");
+    Serial.print(tot_means[1]); Serial.print(",");
+    Serial.print(tot_means[2]); Serial.print(",");
+    Serial.println(tot_means[3]);
     start_time = millis();
   }
 }
