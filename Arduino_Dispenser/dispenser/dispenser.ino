@@ -15,13 +15,13 @@
 #define SS_PIN 10
 #define RST_PIN 9
 
-#define BUTTON_PIN 2
+#define BUTTON_PIN 5
 
-#define WL_PIN 4  // Analog pin, Water Level.
+#define WL_PIN 7  // Analog pin, Water Level.
 
-#define R_LED_PIN 5
-#define Y_LED_PIN 6
-#define G_LED_PIN 7
+#define R_LED_PIN 4
+#define Y_LED_PIN 3
+#define G_LED_PIN 2
 
 #define UID_LENGHT 7
 
@@ -120,6 +120,7 @@ void loop() {
       else{
         for (int i = 0; i < rfid.uid.size; i++) {
           UID[i] = rfid.uid.uidByte[i];
+          Serial.println(rfid.uid.uidByte[i], HEX);
         }
         state = 1;
         digitalWrite(R_LED_PIN, LOW);
