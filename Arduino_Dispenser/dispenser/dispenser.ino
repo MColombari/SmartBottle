@@ -120,7 +120,7 @@ void loop() {
       else{
         for (int i = 0; i < rfid.uid.size; i++) {
           UID[i] = rfid.uid.uidByte[i];
-          Serial.println(rfid.uid.uidByte[i], HEX);
+          // Serial.println(rfid.uid.uidByte[i], HEX); Debug
         }
         state = 1;
         digitalWrite(R_LED_PIN, LOW);
