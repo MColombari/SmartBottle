@@ -11,7 +11,7 @@
       TX -> D2.
     Accellerometer:
       SCL -> A5.
-      SDA -> A4
+      SDA -> A4.
 */
 
 /*  -  Hyperparameter  -  */
@@ -40,7 +40,7 @@
 #define BT_INT_PIN 4             // PIN for state.
 SoftwareSerial Bluetooth(2, 3);  // TX, RX (of HC-05).
 
-void blt_print(char* in){
+void blt_print(String in){
   Serial.print(in);
   if (digitalRead(BT_INT_PIN) == HIGH) {
     Serial.println("\t\tOn BLT");
@@ -158,9 +158,8 @@ void loop() {
       is_power_saving = false;
     }
     battery_buffer_index = 0;
-    Bluetooth.print("Battery Level: ");
-    Bluetooth.print(value);
-    Bluetooth.println("%");
+    String out = "Battery Level: " + String(value) + "%";
+    blt_print(out);
   }
 
   // Read value from the MPU.
