@@ -32,6 +32,16 @@
 #define B_READ_PERIOD 1000
 #define B_ENERGY_THRESHOLD 0.50
 
+// Weight Sensors
+#define IN_PIN_0 A0
+#define IN_PIN_1 A1
+#define IN_PIN_2 A2
+#define IN_PIN_3 A3
+#define WS_FILTER_DIMENSION 150
+#define WS_IDLE_UNTIL_READ 10000
+#define WS_READING_PERIOD 10
+#define WS_IDLE_AFTER_READ 10000
+
 
 /*  -  Library include and global variable and functions  -  */
 
@@ -40,6 +50,7 @@
 #define BT_INT_PIN 4             // PIN for state.
 SoftwareSerial Bluetooth(2, 3);  // TX, RX (of HC-05).
 
+/*
 void blt_print(String in){
   Serial.print(in);
   if (digitalRead(BT_INT_PIN) == HIGH) {
@@ -50,6 +61,7 @@ void blt_print(String in){
     Serial.println("\t\tOnly Serial");
   }
 }
+*/
 
 // GY-521, Accellerometer.
 #include <Wire.h>
@@ -96,6 +108,24 @@ size_t battery_buffer_index;
 unsigned long b_start_time;
 bool is_power_saving;
 
+// Weight sensors
+unsigned long w_start_time;
+
+int16_t ws_values_0[WS_FILTER_DIMENSION];    // Digital filter 0.
+int16_t ws_values_1[WS_FILTER_DIMENSION];    // Digital filter 1.
+int16_t ws_values_2[WS_FILTER_DIMENSION];    // Digital filter 2.
+int16_t ws_values_3[WS_FILTER_DIMENSION];    // Digital filter 3.
+int16_t ws_index;
+
+/* Global
+      0 -> Non stable.
+      1 -> Wait to read.
+      2 -> Reading.
+      3 -> Sent.
+*/
+unsigned long s_time;
+int state;
+
 
 
 void setup() {
@@ -140,9 +170,33 @@ void setup() {
   for (int i = 0; i < B_BUFFER_DIM; i++) {
     battery_buffer[B_BUFFER_DIM] = 0;
   }
+
+  // Weight Sensor
+  ws_index = 0;
+
+  for (int i = 0; i < WS_FILTER_DIMENSION; i++){
+    ws_values_0[i] = 0;
+    ws_values_1[i] = 0;
+    ws_values_2[i] = 0;
+    ws_values_3[i] = 0;
+  }
+
+  // Global
+  s_time = millis();
+  state = 0;
 }
 
 void loop() {
+  /*
+  Serial.print(state);
+  Serial.print(",");
+  Serial.print(is_vertical);
+  Serial.print(",");
+  Serial.println(is_still);*/
+  //Bluetooth.println(state);
+  
+  // blt_print(String(state) + "");
+
   // Index Update.
   if (index_values >= GY_FILTER_DIM) {
     index_values = 0;
@@ -158,8 +212,75 @@ void loop() {
       is_power_saving = false;
     }
     battery_buffer_index = 0;
-    String out = "Battery Level: " + String(value) + "%";
-    blt_print(out);
+  }
+
+  if(((state == 1) || (state == 2)) && (!is_vertical || !is_still)){
+    ws_index = 0;
+    state = 0;
+    s_time = millis();
+  }
+
+  if((state == 0) && (is_still && is_vertical)){
+    state = 1;
+    s_time = millis();
+  }
+
+  if((state == 1) && ((millis() - s_time) >= WS_IDLE_UNTIL_READ)){
+    state = 2;
+    s_time = millis();
+  }
+
+  if((state == 2) && ((millis() - s_time) >= WS_READING_PERIOD)){
+    ws_values_0[ws_index] = analogRead(IN_PIN_0);
+    ws_values_1[ws_index] = analogRead(IN_PIN_1);
+    ws_values_2[ws_index] = analogRead(IN_PIN_2);
+    ws_values_3[ws_index] = analogRead(IN_PIN_3);
+    ws_index++;
+    s_time = millis();
+  }
+
+  if((ws_index >= WS_FILTER_DIMENSION - 1) && (state == 2)){
+    Serial.println("Sending");
+    // Send Data
+    int tot_means[4];
+    tot_means[0] = mean(ws_values_0, WS_FILTER_DIMENSION);
+    tot_means[1] = mean(ws_values_1, WS_FILTER_DIMENSION);
+    tot_means[2] = mean(ws_values_2, WS_FILTER_DIMENSION);
+    tot_means[3] = mean(ws_values_3, WS_FILTER_DIMENSION);
+    int tot = tot_means[0] + tot_means[1] + tot_means[2] + tot_means[3];
+    tot /= 4;
+
+    int16_t battery_value = mean(battery_buffer, B_BUFFER_DIM);
+
+    //String out = "Battery: " + String(battery_value) + "\n" "Weight: " + String(map(tot, 1024, 0, 0, 100)) + "%";
+
+    Serial.print("Battery: ");
+    Serial.print(battery_value);
+    Serial.println("%");
+    Serial.print("Weight: ");
+    Serial.print(map(tot, 1024, 0, 0, 100));
+    Serial.println("%");
+    Serial.println(digitalRead(BT_INT_PIN) == HIGH);
+    if (digitalRead(BT_INT_PIN) == HIGH) {
+      Bluetooth.print("Battery: ");
+      Bluetooth.print(battery_value);
+      Bluetooth.println("%");
+      Bluetooth.print("Weight: ");
+      Bluetooth.print(map(tot, 1024, 0, 0, 100));
+      Bluetooth.println("%");
+      Serial.println("\tOn Bluetooth");
+    }
+    else{
+      Serial.println("\tOnly Serial");
+    }
+
+    s_time = millis();
+    state = 3;
+  }
+
+  if((state == 3) && ((millis() - s_time) >= WS_IDLE_AFTER_READ)){
+    state = 0;
+    s_time = millis();
   }
 
   // Read value from the MPU.
@@ -203,14 +324,18 @@ void loop() {
     if (
       ((mean_X >= -GY_ZERO_SLACK) && (mean_X <= GY_ZERO_SLACK)) && ((mean_Y >= -GY_ZERO_SLACK) && (mean_Y <= GY_ZERO_SLACK)) && ((mean_Z >= GY_G_FORCE_VALUE - GY_G_FORCE_SLACK) && (mean_Z <= GY_G_FORCE_VALUE + GY_G_FORCE_SLACK))) {
       // Print if changed.
+      /*
       if (is_vertical == false) {
         blt_print("Is vertical");
       }
+      */
       is_vertical = true;
     } else {
+      /*
       if (is_vertical == true) {
         blt_print("Is NOT vertical");
       }
+      */
       is_vertical = false;
     }
 
@@ -221,16 +346,20 @@ void loop() {
 
     if (
       (dist_X <= GY_MARGIN_DIST) && (dist_Y <= GY_MARGIN_DIST) && (dist_Z <= GY_MARGIN_DIST)) {
+      /*
       if (is_still == false) {
         //Serial.println("[GY-521]: Is still");
         blt_print("Is still");
       }
+      */
       is_still = true;
     } else {
+      /*
       if (is_still == true) {
         //Serial.println("[GY-521]: Is NOT still");
         blt_print("Is NOT still");
       }
+      */
       is_still = false;
     }
 

@@ -50,6 +50,10 @@ void setup() {
   SPI.begin(); // init SPI bus
   rfid.PCD_Init(); // init MFRC522
 
+  //Serial.println(rfid.PCD_GetAntennaGain());
+  rfid.PCD_SetRegisterBitMask(rfid.RFCfgReg, (0x07<<4)); // Increase antenna gain to 48db.
+  //Serial.println(rfid.PCD_GetAntennaGain());
+
   pinMode(BUTTON_PIN, INPUT);
   pinMode(R_LED_PIN, OUTPUT);
   pinMode(Y_LED_PIN, OUTPUT);

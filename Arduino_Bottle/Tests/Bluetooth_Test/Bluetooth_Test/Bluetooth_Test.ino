@@ -24,7 +24,15 @@ void loop() {
   {
     char data = BTSerial.read();
     count++;
-    BTSerial.println(count);
+    Serial.println(count);
     Serial.print(data);
   }
+  if (Serial.available()>0)
+  {
+    char data = Serial.read();
+    count++;
+    BTSerial.println(count);
+    BTSerial.print(data);
+  }
+  
 }
