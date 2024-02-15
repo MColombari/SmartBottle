@@ -360,18 +360,18 @@ void loop() {
 
     Serial.print("Battery: ");
     Serial.print(battery_value);
-    Serial.println("%");
+    Serial.print("%;");
     Serial.print("Weight: ");
-    Serial.print(map(tot, 1024, 0, 0, 100));
+    Serial.print(tot);
     Serial.println("%");
     //Serial.println(digitalRead(BT_INT_PIN) == HIGH);
     if (digitalRead(BT_INT_PIN) == HIGH) {
       Bluetooth.print("Battery: ");
       Bluetooth.print(battery_value);
-      Bluetooth.println("%");
+      Bluetooth.print("%");
       Bluetooth.print("Weight: ");
-      Bluetooth.print(map(tot, 1024, 0, 0, 100));
-      Bluetooth.println("%");
+      Bluetooth.print(map(tot, 1024, 0, 0, 1024));
+      Bluetooth.println("u");
       Serial.println("\tOn Bluetooth");
     }
     else{
