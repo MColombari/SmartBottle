@@ -12,6 +12,8 @@
     Accellerometer:
       SCL -> A5.
       SDA -> A4.
+    Led:
+      Control -> 11
 */
 
 /*  -  Hyperparameter  -  */
@@ -37,10 +39,15 @@
 #define IN_PIN_1 A1
 #define IN_PIN_2 A2
 #define IN_PIN_3 A3
-#define WS_FILTER_DIMENSION 150
+#define WS_FILTER_DIMENSION 100
 #define WS_IDLE_UNTIL_READ 10000
-#define WS_READING_PERIOD 10
+#define WS_READING_PERIOD 100      // Between read.
 #define WS_IDLE_AFTER_READ 10000
+
+// Led
+#define LED_PIN 11
+#define LED_NUM 20
+#define LED_UPDATE_PERIOD 40
 
 
 /*  -  Library include and global variable and functions  -  */
@@ -117,6 +124,62 @@ int16_t ws_values_2[WS_FILTER_DIMENSION];    // Digital filter 2.
 int16_t ws_values_3[WS_FILTER_DIMENSION];    // Digital filter 3.
 int16_t ws_index;
 
+// Led
+#include <FastLED.h>
+CRGB leds[LED_NUM];
+int led_intensity = 100;
+int led_red = 0;
+int led_green = 0;
+int led_blue = 0;
+
+unsigned long led_time;
+size_t led_anim_index;
+const float led_anim[] {
+  0,
+  0.31,
+  0.59,
+  0.81,
+  0.94,
+  1,
+  0.94,
+  0.81,
+  0.59,
+  0.31,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0
+};
+
+void update_led(){
+  if(led_anim_index >= 20){
+    led_anim_index = 0;
+  }
+  float alpha = 0;
+  for(int i = 0;  i < LED_NUM; i++){
+    if((led_anim_index + i) >= LED_NUM){
+      alpha = led_anim[led_anim_index + i - LED_NUM];
+    }
+    else{
+      alpha = led_anim[led_anim_index + i];
+    }
+
+    leds[i] = CRGB(
+      (int) led_blue * alpha,
+      (int) led_green * alpha,
+      (int) led_red * alpha);
+  }
+  FastLED.show();
+  led_anim_index++;
+}
+
+
 /* Global
       0 -> Non stable.
       1 -> Wait to read.
@@ -181,6 +244,17 @@ void setup() {
     ws_values_3[i] = 0;
   }
 
+  // Led
+  FastLED.addLeds<WS2812B, LED_PIN, GBR>(leds, LED_NUM);
+  led_anim_index = 0;
+  led_time = millis();
+
+  led_red = 10;
+  led_green = 10;
+  led_blue = 10;
+  update_led();
+
+
   // Global
   s_time = millis();
   state = 0;
@@ -214,6 +288,34 @@ void loop() {
     battery_buffer_index = 0;
   }
 
+  //Serial.println(state);
+
+  //Led update
+  if((millis() - led_time) >= LED_UPDATE_PERIOD){
+    if(state == 0){
+      led_red = 10;
+      led_green = 10;
+      led_blue = 10;
+    }
+    else if(state == 1){
+      led_red = 10;
+      led_green = 0;
+      led_blue = 0;
+    }
+    else if(state == 2){
+      led_red = 0;
+      led_green = 0;
+      led_blue = 10;
+    }
+    else{
+      led_red = 0;
+      led_green = 10;
+      led_blue = 0;
+    }
+    update_led();
+    led_time = millis();
+  }
+
   if(((state == 1) || (state == 2)) && (!is_vertical || !is_still)){
     ws_index = 0;
     state = 0;
@@ -240,7 +342,7 @@ void loop() {
   }
 
   if((ws_index >= WS_FILTER_DIMENSION - 1) && (state == 2)){
-    Serial.println("Sending");
+    Serial.println("Sending...");
     // Send Data
     int tot_means[4];
     tot_means[0] = mean(ws_values_0, WS_FILTER_DIMENSION);
@@ -252,6 +354,8 @@ void loop() {
 
     int16_t battery_value = mean(battery_buffer, B_BUFFER_DIM);
 
+    //Serial.println("Calc Complete");
+
     //String out = "Battery: " + String(battery_value) + "\n" "Weight: " + String(map(tot, 1024, 0, 0, 100)) + "%";
 
     Serial.print("Battery: ");
@@ -260,7 +364,7 @@ void loop() {
     Serial.print("Weight: ");
     Serial.print(map(tot, 1024, 0, 0, 100));
     Serial.println("%");
-    Serial.println(digitalRead(BT_INT_PIN) == HIGH);
+    //Serial.println(digitalRead(BT_INT_PIN) == HIGH);
     if (digitalRead(BT_INT_PIN) == HIGH) {
       Bluetooth.print("Battery: ");
       Bluetooth.print(battery_value);
@@ -274,8 +378,9 @@ void loop() {
       Serial.println("\tOnly Serial");
     }
 
-    s_time = millis();
+    ws_index = 0;
     state = 3;
+    s_time = millis();
   }
 
   if((state == 3) && ((millis() - s_time) >= WS_IDLE_AFTER_READ)){
