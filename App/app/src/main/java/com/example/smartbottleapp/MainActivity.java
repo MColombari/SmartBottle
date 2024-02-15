@@ -1,7 +1,5 @@
 package com.example.smartbottleapp;
 
-import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -14,7 +12,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.DialogFragment;
 
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
@@ -22,8 +19,6 @@ import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import javax.crypto.Mac;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -35,6 +30,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     BluetoothManager bluetoothManager;
     SimpleBluetoothDeviceInterface deviceInterface;
+
+    ArrayList<DataFromBottle> bottleData;
 
     boolean is_connected;
 
@@ -54,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         connectionButton = (ConstraintLayout) findViewById(R.id.BackgroundButtonView);
         connectionButtonText = (TextView) findViewById(R.id.ButtonTextView);
         informationTextView = (TextView) findViewById(R.id.InformationTextView);
+
+        bottleData = new ArrayList<>();
 
         is_connected = false;
 
@@ -90,7 +89,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void onMessageReceived(String message) {
         // We received a message! Handle it here.
-        informationTextView.setText(message);
+
+        try {
+            DataFromBottle tmp = new DataFromBottle(message);
+            bottleData.add(tmp);
+            informationTextView.setText(tmp.toString());
+        }
+        catch(Exception e){
+            informationTextView.setText("Error: message received not valid");
+        }
     }
 
     private void onError(Throwable error) {
