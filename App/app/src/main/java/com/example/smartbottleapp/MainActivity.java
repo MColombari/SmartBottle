@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             DataFromBottle tmp = new DataFromBottle(message);
             bottleData.add(tmp);
-            informationTextView.setText(tmp.toString());
+            informationTextView.setText(bottleData.toString());
         }
         catch(Exception e){
             informationTextView.setText("Error: message received not valid");
