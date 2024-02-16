@@ -1,6 +1,6 @@
 import requests
 
-API_URL = "https://yharon.pythonanywhere.com/notifications"
+API_URL = "https://yharon.pythonanywhere.com"
 
 oos_payload = {
     "dispenser_id": 1, #Different dispensers should have different IDs
@@ -10,7 +10,7 @@ oos_payload = {
 # >>> Call this method to add a notification and send a message on telegram to technicians
 def notify_out_of_service():
     try:
-        response = requests.post(API_URL, json=oos_payload)
+        response = requests.post(API_URL + '/notifications', json=oos_payload)
 
         if response.status_code == 200:
             print("Notification added successfully!")
@@ -20,3 +20,13 @@ def notify_out_of_service():
 
     except Exception as e:
         print(f"Error in the sender")
+
+# >>> Call this method to send a fill record to the server
+def post_fill(dispenser_id, bottle_id, fill_datetime):
+    data = {
+        'dispenser_id': dispenser_id,
+        'bottle_id': bottle_id,
+        'datetime': fill_datetime
+    }
+
+    response = requests.post(API_URL + 'fills', json=data)
