@@ -1,3 +1,5 @@
+package com.example.smartbottleapp;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -36,7 +38,7 @@ public class ServerAPI {
         }
     }
 
-    public static JSONObject createJsonFromReadingsList(List<Reading> readings) {
+    public static JSONObject createJsonFromReadingsList(List<Reading> readings) throws JSONException {
         JSONObject result = new JSONObject();
         JSONArray readingsArray = new JSONArray();
 

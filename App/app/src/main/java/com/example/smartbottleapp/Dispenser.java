@@ -1,3 +1,5 @@
+package com.example.smartbottleapp;
+
 public class Dispenser {
     public int id;
     public String name;

@@ -1,3 +1,5 @@
+package com.example.smartbottleapp;
+
 public class Reading {
     int bottleId;
     String datetime;
