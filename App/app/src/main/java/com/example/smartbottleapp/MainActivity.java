@@ -3,8 +3,15 @@ package com.example.smartbottleapp;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,10 +19,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.room.Update;
 
+import com.example.smartbottleapp.localDatabaseInteraction.NewID;
+import com.example.smartbottleapp.localDatabaseInteraction.UpdateID;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +38,13 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     ConstraintLayout connectionButton;
     TextView connectionButtonText;
-    TextView informationTextView;
+
+    ImageView settingsImageView;
+
+    TextView idView;
+
+    EditText newID;
+    PopupWindow popupWindow;
 
     BluetoothManager bluetoothManager;
     SimpleBluetoothDeviceInterface deviceInterface;
@@ -50,13 +68,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         connectionButton = (ConstraintLayout) findViewById(R.id.BackgroundButtonView);
         connectionButtonText = (TextView) findViewById(R.id.ButtonTextView);
-        informationTextView = (TextView) findViewById(R.id.InformationTextView);
+        settingsImageView = (ImageView) findViewById(R.id.SettingsImageView);
+        idView = (TextView) findViewById(R.id.idTextView);
+
+        settingsImageView.setOnClickListener(this);
+
 
         bottleData = new ArrayList<>();
 
         is_connected = false;
 
         connectionButton.setOnClickListener(this);
+
+        Thread t = new Thread(new UpdateID(getApplicationContext(), idView));
+        t.start();
     }
 
     public void connectToDevice(String mac) {
@@ -90,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onMessageReceived(String message) {
         // We received a message! Handle it here.
 
+        /*
         try {
             DataFromBottle tmp = new DataFromBottle(message);
             bottleData.add(tmp);
@@ -98,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         catch(Exception e){
             informationTextView.setText("Error: message received not valid");
         }
+         */
     }
 
     private void onError(Throwable error) {
@@ -116,34 +143,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        // Try to connect.
-        Collection<BluetoothDevice> pairedDevices = bluetoothManager.getPairedDevicesList();
+        if(view.getId() == settingsImageView.getId()){
+            LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+            View popupView = layoutInflater.inflate(R.layout.popup_window, null);
 
-        ArrayList<String> devicesName = new ArrayList<>();
-        ArrayList<String> devicesMac = new ArrayList<>();
-        for (BluetoothDevice device : pairedDevices) {
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {}
-            else {
-                devicesName.add(device.getName());
-                devicesMac.add(device.getAddress());
+            popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                popupWindow.setElevation(20);
             }
+            popupWindow.setAnimationStyle(R.style.AnimationGenericPopupWindow);
+            popupWindow.update();
+            /* "v" is used as a parent view to get the View.getWindowToken() token from. */
+            popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+            ConstraintLayout button = (ConstraintLayout) popupView.findViewById(R.id.ChangeIdButtonView);
+            TextView buttonText = (TextView) popupView.findViewById(R.id.ChangeIdTextView);
+            newID = (EditText) popupView.findViewById(R.id.editTextID);
+            buttonText.setOnClickListener(this);
+            button.setOnClickListener(this);
+
+            // TODO finish the anime
         }
+        else if((view.getId() == connectionButton.getId()) || (view.getId() == connectionButtonText.getId())){
 
-        CharSequence[] cs = devicesName.toArray(new CharSequence[devicesName.size()]);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Device")
-                .setItems(cs, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        connectToDevice(devicesMac.get(which));
-                    }
-                })
-                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
+            // Try to connect.
+            Collection<BluetoothDevice> pairedDevices = bluetoothManager.getPairedDevicesList();
 
-        builder.show();
+            ArrayList<String> devicesName = new ArrayList<>();
+            ArrayList<String> devicesMac = new ArrayList<>();
+            for (BluetoothDevice device : pairedDevices) {
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    devicesName.add(device.getName());
+                    devicesMac.add(device.getAddress());
+                }
+            }
 
+            CharSequence[] cs = devicesName.toArray(new CharSequence[devicesName.size()]);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Select Device")
+                    .setItems(cs, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            connectToDevice(devicesMac.get(which));
+                        }
+                    })
+                    .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+
+            builder.show();
+        }
+        else{
+            // TODO change id.
+            try {
+                int id = Integer.valueOf(String.valueOf(newID.getText()));
+                Thread t = new Thread(new NewID(getApplicationContext(), id));
+                t.start();
+                idView.setText(String.valueOf(id));
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            popupWindow.dismiss();
+        }
     }
 }
