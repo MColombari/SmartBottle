@@ -19,15 +19,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
-import androidx.room.Update;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smartbottleapp.localDatabaseInteraction.NewID;
-import com.example.smartbottleapp.localDatabaseInteraction.UpdateID;
+import com.example.smartbottleapp.localDatabaseInteraction.HomeInitializer;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     EditText newID;
     PopupWindow popupWindow;
+
+    RecyclerView recyclerView;
 
     BluetoothManager bluetoothManager;
     SimpleBluetoothDeviceInterface deviceInterface;
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         connectionButtonText = (TextView) findViewById(R.id.ButtonTextView);
         settingsImageView = (ImageView) findViewById(R.id.SettingsImageView);
         idView = (TextView) findViewById(R.id.idTextView);
+        recyclerView = (RecyclerView) findViewById(R.id.RecycleViewMain);
 
         settingsImageView.setOnClickListener(this);
 
@@ -80,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         connectionButton.setOnClickListener(this);
 
-        Thread t = new Thread(new UpdateID(getApplicationContext(), idView));
-        t.start();
+        Thread t_HI = new Thread(new HomeInitializer(getApplicationContext(), idView, recyclerView));
+        t_HI.start();
     }
 
     public void connectToDevice(String mac) {

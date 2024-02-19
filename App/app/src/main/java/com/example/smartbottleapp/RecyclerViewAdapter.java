@@ -29,7 +29,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         ElementRecycleView elementRecycleView = elementRecycleViewArrayList.get(position);
         holder.getNameView().setText(elementRecycleView.name);
         holder.getLocationView().setText(elementRecycleView.location);
-        holder.getIsBusyView().setText(String.valueOf(elementRecycleView.is_busy));
+        holder.getIsBusyView().setText(elementRecycleView.is_busy? "Is Busy" : "");
     }
 
     @Override
