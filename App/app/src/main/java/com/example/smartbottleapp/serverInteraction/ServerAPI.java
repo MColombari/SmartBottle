@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.ArrayList;
+
 import org.json.*;
 
 public class ServerAPI {
@@ -38,7 +39,7 @@ public class ServerAPI {
         }
     }
 
-    public static JSONObject createJsonFromReadingsList(List<Reading> readings) throws JSONException {
+    public static JSONObject createJsonFromReadingsList(List<Reading> readings) {
         JSONObject result = new JSONObject();
         JSONArray readingsArray = new JSONArray();
 
@@ -57,37 +58,37 @@ public class ServerAPI {
     }
 
     private static String post(String resource, String postData) {
-    try {
-        URL url = new URL(HOST + resource);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
+        try {
+            URL url = new URL(HOST + resource);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
 
-        // Write the POST data to the request
-        try (OutputStream os = connection.getOutputStream()) {
-            byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8);
-            os.write(postDataBytes);
-            os.flush();
-        }
-
-        int responseCode = connection.getResponseCode();
-        System.out.println("Response Code: " + responseCode);
-
-        // Read the response from the server
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            StringBuilder response = new StringBuilder();
-            String responseLine;
-            while ((responseLine = br.readLine()) != null) {
-                response.append(responseLine.trim());
+            // Write the POST data to the request
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] postDataBytes = postData.getBytes(StandardCharsets.UTF_8);
+                os.write(postDataBytes);
+                os.flush();
             }
-            return response.toString();
+
+            int responseCode = connection.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
+
+            // Read the response from the server
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                return response.toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-        return null;
     }
-}
 
 
     public static Double getWaterDrankUser(int userId){
@@ -127,7 +128,7 @@ public class ServerAPI {
     }
 
     public static boolean isBusy(int dispenserId){
-        String r = get("/engagement/is_busy/" + dispenserId);
+        String r = get("engagement/is_busy/" + dispenserId);
         if (r.equals("True"))
             return true;
         return false;
@@ -147,5 +148,16 @@ public class ServerAPI {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void registerBottle(int bottleId, int userId, double capacity) {
+        // Create JSON payload
+        JSONObject jsonPayload = new JSONObject();
+        jsonPayload.put("bottle_id", bottleId);
+        jsonPayload.put("user_id", userId);
+        jsonPayload.put("capacity", capacity);
+        String jsonString = jsonPayload.toString();
+        System.out.println(jsonPayload);
+        post("bottles/register", jsonString);
     }
 }
