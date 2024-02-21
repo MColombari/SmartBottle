@@ -39,7 +39,7 @@ public class ServerAPI {
         }
     }
 
-    public static JSONObject createJsonFromReadingsList(List<Reading> readings) {
+    public static JSONObject createJsonFromReadingsList(List<Reading> readings) throws JSONException {
         JSONObject result = new JSONObject();
         JSONArray readingsArray = new JSONArray();
 
@@ -150,7 +150,7 @@ public class ServerAPI {
         }
     }
 
-    public static void registerBottle(int bottleId, int userId, double capacity) {
+    public static void registerBottle(int bottleId, int userId, double capacity) throws JSONException {
         // Create JSON payload
         JSONObject jsonPayload = new JSONObject();
         jsonPayload.put("bottle_id", bottleId);
