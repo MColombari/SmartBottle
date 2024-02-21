@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.smartbottleapp.localDatabaseInteraction.NewID;
 import com.example.smartbottleapp.localDatabaseInteraction.HomeInitializer;
 import com.example.smartbottleapp.serverInteraction.UpdateRecycleView;
+import com.example.smartbottleapp.serverInteraction.UpdateWaterDrank;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageView refreshImageView;
 
     TextView idView;
+    TextView waterDrankTextView;
 
     EditText newID;
     PopupWindow popupWindow;
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         settingsImageView = (ImageView) findViewById(R.id.SettingsImageView);
         refreshImageView = (ImageView) findViewById(R.id.RefreshImageView);
         idView = (TextView) findViewById(R.id.idTextView);
+        waterDrankTextView = (TextView) findViewById(R.id.WaterDrankTextView);
         recyclerView = (RecyclerView) findViewById(R.id.RecycleViewMain);
 
 
@@ -102,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
 
-        Thread t_HI = new Thread(new HomeInitializer(getApplicationContext(), idView, recyclerViewAdapter, this));
+        Thread t_HI = new Thread(new HomeInitializer(getApplicationContext(), idView, waterDrankTextView, recyclerViewAdapter, this));
         t_HI.start();
     }
 
@@ -221,10 +224,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(userID != null) {
                 recyclerViewAdapter.removeAllElement();
                 new Thread(new UpdateRecycleView(recyclerViewAdapter, userID, this)).start();
+                waterDrankTextView.setText("NaN");
+                new Thread(new UpdateWaterDrank(waterDrankTextView, userID, this)).start();
             }
         }
         else{
-            // TODO change id.
             try {
                 int id = Integer.valueOf(String.valueOf(newID.getText()));
                 userID = id;
@@ -233,6 +237,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 idView.setText(String.valueOf(id));
                 recyclerViewAdapter.removeAllElement();
                 new Thread(new UpdateRecycleView(recyclerViewAdapter, userID, this)).start();
+                waterDrankTextView.setText("NaN");
+                new Thread(new UpdateWaterDrank(waterDrankTextView, userID, this)).start();
             } catch (Exception e){
                 e.printStackTrace();
             }
