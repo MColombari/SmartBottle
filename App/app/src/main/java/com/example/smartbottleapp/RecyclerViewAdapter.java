@@ -11,7 +11,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
+
     ArrayList<ElementRecycleView> elementRecycleViewArrayList;
+
+    public RecyclerViewAdapter() {
+        this.elementRecycleViewArrayList = new ArrayList<>();
+    }
 
     public RecyclerViewAdapter(ArrayList<ElementRecycleView> elementRecycleViewArrayList) {
         this.elementRecycleViewArrayList = elementRecycleViewArrayList;
@@ -35,6 +40,34 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public int getItemCount() {
         return elementRecycleViewArrayList.size();
+    }
+
+    public void addElement(ElementRecycleView e){
+        elementRecycleViewArrayList.add(e);
+        notifyItemInserted(getItemCount() - 1);
+    }
+
+    public void removeAllElement(){
+        elementRecycleViewArrayList = new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
+    public void addElements(ArrayList<ElementRecycleView> es){
+        elementRecycleViewArrayList.addAll(es);
+        notifyDataSetChanged();
+    }
+
+    public void setNewData(ArrayList<ElementRecycleView> es){
+        elementRecycleViewArrayList = es;
+        notifyDataSetChanged();
+    }
+
+    public void setElementBusy(int position){
+        if(getItemCount() > position){
+            // Check for range.
+            elementRecycleViewArrayList.get(position).is_busy = true;
+            notifyItemChanged(position);
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -8,20 +8,21 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smartbottleapp.ElementRecycleView;
+import com.example.smartbottleapp.MainActivity;
 import com.example.smartbottleapp.RecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpdateRecycleView implements Runnable{
-    RecyclerView recyclerView;
+public class UpdateRecycleView implements Runnable {
+    RecyclerViewAdapter recyclerViewAdapter;
     int userID;
-    Context applicationContext;
+    MainActivity mainActivity;
 
-    public UpdateRecycleView(RecyclerView recyclerView, int userID, Context applicationContext) {
-        this.recyclerView = recyclerView;
+    public UpdateRecycleView(RecyclerViewAdapter recyclerViewAdapter, int userID, MainActivity mainActivity) {
+        this.recyclerViewAdapter = recyclerViewAdapter;
         this.userID = userID;
-        this.applicationContext = applicationContext;
+        this.mainActivity = mainActivity;
     }
 
     @Override
@@ -31,20 +32,16 @@ public class UpdateRecycleView implements Runnable{
             dispenserList = new ArrayList<>();
         }
 
-        ArrayList<ElementRecycleView> elementRecycleViewArrayList = new ArrayList<>();
-
+        int index = 0;
         for(Dispenser d : dispenserList){
-            elementRecycleViewArrayList.add(new ElementRecycleView(d, ServerAPI.isBusy(d.id)));
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerViewAdapter.addElement(new ElementRecycleView(d, false));
+                }
+            });
+            new Thread(new IsDispenserBusy(d, index, mainActivity, recyclerViewAdapter)).start();
+            index += 1;
         }
-
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(elementRecycleViewArrayList);
-                recyclerView.setAdapter(recyclerViewAdapter);
-                /* I need to use LinearLayout because doesn't exits any Manager for ConstraintLayout. */
-                recyclerView.setLayoutManager(new LinearLayoutManager(applicationContext));
-            }
-        });
     }
 }

@@ -19,10 +19,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smartbottleapp.localDatabaseInteraction.NewID;
 import com.example.smartbottleapp.localDatabaseInteraction.HomeInitializer;
+import com.example.smartbottleapp.serverInteraction.UpdateRecycleView;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView connectionButtonText;
 
     ImageView settingsImageView;
+    ImageView refreshImageView;
 
     TextView idView;
 
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     PopupWindow popupWindow;
 
     RecyclerView recyclerView;
+    RecyclerViewAdapter recyclerViewAdapter;
 
     BluetoothManager bluetoothManager;
     SimpleBluetoothDeviceInterface deviceInterface;
@@ -52,6 +56,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ArrayList<DataFromBottle> bottleData;
 
     boolean is_connected;
+
+    Integer userID;
+
+    public void setUserID(Integer userID) {
+        this.userID = userID;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +79,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         connectionButton = (ConstraintLayout) findViewById(R.id.BackgroundButtonView);
         connectionButtonText = (TextView) findViewById(R.id.ButtonTextView);
         settingsImageView = (ImageView) findViewById(R.id.SettingsImageView);
+        refreshImageView = (ImageView) findViewById(R.id.RefreshImageView);
         idView = (TextView) findViewById(R.id.idTextView);
         recyclerView = (RecyclerView) findViewById(R.id.RecycleViewMain);
 
+
         settingsImageView.setOnClickListener(this);
+        refreshImageView.setOnClickListener(this);
 
 
         bottleData = new ArrayList<>();
@@ -81,7 +94,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         connectionButton.setOnClickListener(this);
 
-        Thread t_HI = new Thread(new HomeInitializer(getApplicationContext(), idView, recyclerView));
+        userID = null;
+
+        recyclerViewAdapter = new RecyclerViewAdapter();
+        recyclerView.setAdapter(recyclerViewAdapter);
+        /* I need to use LinearLayout because doesn't exits any Manager for ConstraintLayout. */
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+
+        Thread t_HI = new Thread(new HomeInitializer(getApplicationContext(), idView, recyclerViewAdapter, this));
         t_HI.start();
     }
 
@@ -196,13 +217,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             builder.show();
         }
+        else if(view.getId() == refreshImageView.getId()){
+            if(userID != null) {
+                recyclerViewAdapter.removeAllElement();
+                new Thread(new UpdateRecycleView(recyclerViewAdapter, userID, this)).start();
+            }
+        }
         else{
             // TODO change id.
             try {
                 int id = Integer.valueOf(String.valueOf(newID.getText()));
+                userID = id;
                 Thread t = new Thread(new NewID(getApplicationContext(), id));
                 t.start();
                 idView.setText(String.valueOf(id));
+                recyclerViewAdapter.removeAllElement();
+                new Thread(new UpdateRecycleView(recyclerViewAdapter, userID, this)).start();
             } catch (Exception e){
                 e.printStackTrace();
             }
