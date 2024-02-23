@@ -28,9 +28,8 @@
 #define TIME_AFTER_FAILURE 1000
 #define TIME_AFTER_SUCCESS 500
 
-const char* START_STRING = "Start";
+const char* START_STRING = "/";
 const char* SEPARATOR_STRING = "-";
-const char* END_STRING = "End";
 
 int state;
 unsigned long t_fail;
@@ -69,16 +68,16 @@ void setup() {
 }
 
 void send_data(){
-  Serial.println(START_STRING);
+  Serial.write(START_STRING);
   for(int i = 0; i < UID_LENGHT; i++){
     if(rfid.uid.uidByte[i] < 0x10){
       Serial.print("0");
     }
-    Serial.println(rfid.uid.uidByte[i], HEX);
+    Serial.print(rfid.uid.uidByte[i], HEX);
   }
-  Serial.println(SEPARATOR_STRING);
-  Serial.println(map(analogRead(WL_PIN), 0, 1023, 0, 100));
-  Serial.println(END_STRING);
+  Serial.print(SEPARATOR_STRING);
+  Serial.print(map(analogRead(WL_PIN), 0, 1023, 0, 100));
+  Serial.write(0xFE);
 }
 
 void loop() {
