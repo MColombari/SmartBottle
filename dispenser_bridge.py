@@ -6,7 +6,7 @@ from datetime import datetime
 
 API_URL = "https://yharon.pythonanywhere.com"
 WATER_WARNING_THREASHOLD = 10
-DISPENCER_ID = 100
+DISPENCER_ID = 1
 
 oos_payload = {
     "dispenser_id": DISPENCER_ID, #Different dispensers should have different IDs
@@ -64,7 +64,7 @@ class Bridge:
             notify_out_of_service()
         
         current_time = str(datetime.now().strftime("%H:%M:%S"))
-        post_fill(DISPENCER_ID, 100, current_time)
+        post_fill(DISPENCER_ID, 111, current_time)
 
 
 # >>> Call this method to add a notification and send a message on telegram to technicians
