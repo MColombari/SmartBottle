@@ -89,7 +89,7 @@ def post_fill(dispenser_id, bottle_id, fill_datetime):
         'datetime': fill_datetime
     }
 
-    response = requests.post(API_URL + 'fills', json=data)
+    response = requests.post(API_URL + '/fills', json=data)
 
 
 
