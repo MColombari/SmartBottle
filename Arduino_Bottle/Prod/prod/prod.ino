@@ -18,6 +18,9 @@
 
 /*  -  Hyperparameter  -  */
 
+// Generic
+#define BOTTLE_ID 700
+
 // GY-521
 #define GY_FILTER_DIM 10
 #define GY_MEANS_STORE_DIM 10
@@ -366,12 +369,11 @@ void loop() {
     Serial.println("%");
     //Serial.println(digitalRead(BT_INT_PIN) == HIGH);
     if (digitalRead(BT_INT_PIN) == HIGH) {
-      Bluetooth.print("Battery: ");
-      Bluetooth.print(battery_value);
-      Bluetooth.print("%");
-      Bluetooth.print("Weight: ");
+      Bluetooth.print(BOTTLE_ID);
+      Bluetooth.print(";");
       Bluetooth.print(map(tot, 1024, 0, 0, 1024));
-      Bluetooth.println("u");
+      Bluetooth.print(";");
+      Bluetooth.println(battery_value);
       Serial.println("\tOn Bluetooth");
     }
     else{

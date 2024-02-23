@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.smartbottleapp.localDatabaseInteraction.NewID;
 import com.example.smartbottleapp.localDatabaseInteraction.HomeInitializer;
+import com.example.smartbottleapp.serverInteraction.SendData;
 import com.example.smartbottleapp.serverInteraction.UpdateRecycleView;
 import com.example.smartbottleapp.serverInteraction.UpdateWaterDrank;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
@@ -37,6 +39,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    final int DIM_PACKAGE_TO_SEND = 4;
+    final Integer bottle_capacity = 600;    // We could get this form user, but for now it's hard coded.
     ConstraintLayout connectionButton;
     TextView connectionButtonText;
 
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     TextView idView;
     TextView waterDrankTextView;
+    TextView latestInfoTextView;
 
     EditText newID;
     PopupWindow popupWindow;
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         refreshImageView = (ImageView) findViewById(R.id.RefreshImageView);
         idView = (TextView) findViewById(R.id.idTextView);
         waterDrankTextView = (TextView) findViewById(R.id.WaterDrankTextView);
+        latestInfoTextView = (TextView) findViewById(R.id.LatestInfoTextView);
         recyclerView = (RecyclerView) findViewById(R.id.RecycleViewMain);
 
 
@@ -139,17 +145,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void onMessageReceived(String message) {
         // We received a message! Handle it here.
-
-        /*
+        Log.v("MessageFromBottleDebug", message);
         try {
-            DataFromBottle tmp = new DataFromBottle(message);
-            bottleData.add(tmp);
-            informationTextView.setText(bottleData.toString());
+            Log.v("ServerDebug", "Message Received");
+            DataFromBottle dataFromBottle = new DataFromBottle(message);
+            Log.v("ServerDebug", "Message Parsed");
+            bottleData.add(dataFromBottle);
+            StringBuilder sb = new StringBuilder();
+            sb.append("ID: " + dataFromBottle.id + "\n");
+            sb.append("Weight: " + dataFromBottle.weight + "%\n");
+            sb.append("RawWeight: " + dataFromBottle.rawWeight + " [0-1024]\n");
+            sb.append("Battery: " + dataFromBottle.battery + "%\n");
+            sb.append("Time: " + dataFromBottle.receivedTime.toString());
+            latestInfoTextView.setTextColor(getColor(R.color.black));
+            latestInfoTextView.setText(sb.toString());
+            if((bottleData.size() >= DIM_PACKAGE_TO_SEND) && (userID != null) && (bottle_capacity != null)){
+                Log.v("ServerDebugSend", "Send Data");
+                Log.v("ServerDebugSend", bottleData.toString());
+                // Send data;
+                new Thread(new SendData((ArrayList<DataFromBottle>) bottleData.clone(), userID, bottle_capacity));
+                bottleData = new ArrayList<>();
+            }
         }
         catch(Exception e){
-            informationTextView.setText("Error: message received not valid");
+            latestInfoTextView.setTextColor(getColor(R.color.red));
+            latestInfoTextView.setText(e.getMessage());
         }
-         */
     }
 
     private void onError(Throwable error) {
@@ -158,7 +179,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void disconnectDevice(){
-        bluetoothManager.closeDevice(deviceInterface);
+        if(deviceInterface != null) {
+            bluetoothManager.closeDevice(deviceInterface);
+        }
         is_connected = false;
 
         connectionButton.setBackground(getResources().getDrawable(R.drawable.button_background_red));

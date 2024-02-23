@@ -1,10 +1,12 @@
 package com.example.smartbottleapp;
 
 import android.os.Build;
+import android.util.Log;
 
 import java.time.LocalDateTime;
 
 public class DataFromBottle {
+    int id;
     int battery;
     float weight;   // value from [0 - 100].
     int rawWeight;
@@ -16,9 +18,17 @@ public class DataFromBottle {
     final int highValue = 350;          // Value corresponding to 100%;
 
     public DataFromBottle(String messageReceived) throws Exception {
-        String[] part = messageReceived.split("%");
-        battery = Integer.parseInt(part[0].split(" ")[1]);
-        rawWeight = Integer.parseInt(part[1].split(" ")[1].split("u")[0]);
+        // Package structure: <ID>;<RawWeight>;<Battery>
+        Log.v("ServerDebug", messageReceived);
+        String[] part = messageReceived.split(";");
+        Log.v("ServerDebug", part[0]);
+        Log.v("ServerDebug", part[1]);
+        Log.v("ServerDebug", part[2]);
+        id = Integer.parseInt(part[0]);
+        rawWeight = Integer.parseInt(part[1]);
+        battery = Integer.parseInt(part[2]);
+
+        Log.v("ServerDebug", "Parsing complete");
 
         // Calculate final weight
         // Range from raw data: [100 - 300]
@@ -43,6 +53,18 @@ public class DataFromBottle {
         else{
             receivedTime = null;
         }
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public float getWeight() {
+        return weight;
+    }
+
+    public LocalDateTime getReceivedTime() {
+        return receivedTime;
     }
 
     @Override
