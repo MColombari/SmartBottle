@@ -134,9 +134,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         connectionButton.setBackground(getResources().getDrawable(R.drawable.button_background_green));
         connectionButtonText.setText("Connected");
         is_connected = true;
-
-        // Let's send a message:
-        //deviceInterface.sendMessage("Hello world!");
     }
 
     private void onMessageSent(String message) {
@@ -163,11 +160,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.v("ServerDebugSend", "Send Data");
                 Log.v("ServerDebugSend", bottleData.toString());
                 // Send data;
-                new Thread(new SendData((ArrayList<DataFromBottle>) bottleData.clone(), userID, bottle_capacity));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    new Thread(new SendData((ArrayList<DataFromBottle>) bottleData.clone(), userID, bottle_capacity));
+                }
                 bottleData = new ArrayList<>();
             }
         }
         catch(Exception e){
+            Log.v("AppException", e.toString());
             latestInfoTextView.setTextColor(getColor(R.color.red));
             latestInfoTextView.setText(e.getMessage());
         }

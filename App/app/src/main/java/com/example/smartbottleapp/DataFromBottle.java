@@ -12,10 +12,10 @@ public class DataFromBottle {
     int rawWeight;
     LocalDateTime receivedTime;
 
-    final int lowerBoundaries = 150;     // Under this we consider it an error;
-    final int upperBoundaries = 400;    // Over this we consider it an error;
-    final int lowValue = 200;           // Value corresponding to 0%;
-    final int highValue = 350;          // Value corresponding to 100%;
+    final int lowerBoundaries = 100;     // Under this we consider it an error;
+    final int upperBoundaries = 360;    // Over this we consider it an error;
+    final int lowValue = 170;           // Value corresponding to 0%;
+    final int highValue = 330;          // Value corresponding to 100%;
 
     public DataFromBottle(String messageReceived) throws Exception {
         // Package structure: <ID>;<RawWeight>;<Battery>

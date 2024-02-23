@@ -65,7 +65,7 @@ class Bridge:
             print("Notify Low Water")
         
         current_time = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        post_fill(DISPENCER_ID, 111, current_time)
+        post_fill(DISPENCER_ID, bottle_id, current_time)
         print("Message sent to the server\n")
 
 

@@ -24,6 +24,7 @@
 #define G_LED_PIN 2
 
 #define UID_LENGHT 7
+#define UID_TO_PRINT 4
 
 #define TIME_AFTER_FAILURE 1000
 #define TIME_AFTER_SUCCESS 500
@@ -69,7 +70,7 @@ void setup() {
 
 void send_data(){
   Serial.write(START_STRING);
-  for(int i = 0; i < UID_LENGHT; i++){
+  for(int i = 0; i < UID_TO_PRINT; i++){
     if(rfid.uid.uidByte[i] < 0x10){
       Serial.print("0");
     }
