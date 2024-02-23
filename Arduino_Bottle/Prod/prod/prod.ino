@@ -19,7 +19,8 @@
 /*  -  Hyperparameter  -  */
 
 // Generic
-#define BOTTLE_ID 700
+#define BOTTLE_ID_HIGHER 11912353
+#define BOTTLE_ID_LOWER 76079232
 
 // GY-521
 #define GY_FILTER_DIM 10
@@ -43,8 +44,8 @@
 #define IN_PIN_2 A2
 #define IN_PIN_3 A3
 #define WS_FILTER_DIMENSION 100
-#define WS_IDLE_UNTIL_READ 10000
-#define WS_READING_PERIOD 100      // Between read.
+#define WS_IDLE_UNTIL_READ 100000
+#define WS_READING_PERIOD 300      // Between read.
 #define WS_IDLE_AFTER_READ 10000
 
 // Led
@@ -369,7 +370,8 @@ void loop() {
     Serial.println("%");
     //Serial.println(digitalRead(BT_INT_PIN) == HIGH);
     if (digitalRead(BT_INT_PIN) == HIGH) {
-      Bluetooth.print(BOTTLE_ID);
+      Bluetooth.print(BOTTLE_ID_HIGHER);
+      Bluetooth.print(BOTTLE_ID_LOWER);
       Bluetooth.print(";");
       Bluetooth.print(map(tot, 1024, 0, 0, 1024));
       Bluetooth.print(";");

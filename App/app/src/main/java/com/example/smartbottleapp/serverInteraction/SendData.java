@@ -1,9 +1,14 @@
 package com.example.smartbottleapp.serverInteraction;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.example.smartbottleapp.DataFromBottle;
 
 import org.json.JSONException;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,11 +16,14 @@ import java.util.Set;
 
 import io.grpc.Server;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class SendData implements Runnable{
     ArrayList<DataFromBottle> dataFromBottleArrayList;
     int user_id;
 
     int bottle_capacity = 600;
+
+    final static DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public SendData(ArrayList<DataFromBottle> dataFromBottleArrayList, int user_id, int bottle_capacity) {
         this.dataFromBottleArrayList = dataFromBottleArrayList;
@@ -29,7 +37,7 @@ public class SendData implements Runnable{
             ArrayList<Reading> readingArrayList = new ArrayList<>();
             Set<Integer> bottle_ids = new HashSet<>();
             for (DataFromBottle d : dataFromBottleArrayList) {
-                readingArrayList.add(new Reading(d.getId(), d.getReceivedTime().toString(), (int) d.getWeight()));
+                readingArrayList.add(new Reading(d.getId(), d.getReceivedTime().format(CUSTOM_FORMATTER), (int) d.getWeight()));
                 bottle_ids.add(d.getId());
             }
             for (Iterator<Integer> it = bottle_ids.iterator(); it.hasNext(); ) {

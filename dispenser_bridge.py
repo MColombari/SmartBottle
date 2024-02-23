@@ -58,13 +58,15 @@ class Bridge:
         parsed = parse.parse(format_string, in_message)
         bottle_id = int(parsed[0], 16)
         water_level = int(parsed[1], 10)
-        print(f"Bottle ID: {bottle_id}\nWater level: {water_level}\n")
+        print(f"Bottle ID: {bottle_id}\nWater level: {water_level}")
 
         if water_level < WATER_WARNING_THREASHOLD:
             notify_out_of_service()
+            print("Notify Low Water")
         
-        current_time = str(datetime.now().strftime("%H:%M:%S"))
+        current_time = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         post_fill(DISPENCER_ID, 111, current_time)
+        print("Message sent to the server\n")
 
 
 # >>> Call this method to add a notification and send a message on telegram to technicians
