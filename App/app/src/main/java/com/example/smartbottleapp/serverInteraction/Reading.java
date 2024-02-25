@@ -10,4 +10,13 @@ public class Reading {
         this.datetime = datetime;
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "Reading{" +
+                "bottleId=" + bottleId +
+                ", datetime='" + datetime + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }

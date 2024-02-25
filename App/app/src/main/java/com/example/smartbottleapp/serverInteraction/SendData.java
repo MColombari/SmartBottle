@@ -1,6 +1,7 @@
 package com.example.smartbottleapp.serverInteraction;
 
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -34,16 +35,20 @@ public class SendData implements Runnable{
     @Override
     public void run() {
         try {
+            Log.v("SendDataDebug", "Start SendData");
             ArrayList<Reading> readingArrayList = new ArrayList<>();
             Set<Integer> bottle_ids = new HashSet<>();
             for (DataFromBottle d : dataFromBottleArrayList) {
                 readingArrayList.add(new Reading(d.getId(), d.getReceivedTime().format(CUSTOM_FORMATTER), (int) d.getWeight()));
                 bottle_ids.add(d.getId());
             }
+            Log.v("SendDataDebug", "Start register bottle to user");
             for (Iterator<Integer> it = bottle_ids.iterator(); it.hasNext(); ) {
                 ServerAPI.registerBottle(it.next(), user_id, bottle_capacity);
             }
+            Log.v("SendDataDebug", readingArrayList.toString());
             ServerAPI.addReadings(readingArrayList);
+            Log.v("SendDataDebug", "Data sent");
         }
         catch (JSONException e){
             e.printStackTrace();

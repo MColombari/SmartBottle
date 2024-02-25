@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.v("ServerDebugSend", bottleData.toString());
                 // Send data;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    new Thread(new SendData((ArrayList<DataFromBottle>) bottleData.clone(), userID, bottle_capacity));
+                    new Thread(new SendData((ArrayList<DataFromBottle>) bottleData.clone(), userID, bottle_capacity)).start();
                 }
                 bottleData = new ArrayList<>();
             }
