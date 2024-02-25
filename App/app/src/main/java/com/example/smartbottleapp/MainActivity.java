@@ -40,7 +40,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     final int DIM_PACKAGE_TO_SEND = 4;
-    final Integer bottle_capacity = 600;    // We could get this form user, but for now it's hard coded.
+    final Float bottle_capacity = 0.6f;    // We could get this form user, but for now it's hard coded.
     ConstraintLayout connectionButton;
     TextView connectionButtonText;
 

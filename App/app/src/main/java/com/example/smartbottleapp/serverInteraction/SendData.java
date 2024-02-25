@@ -22,11 +22,11 @@ public class SendData implements Runnable{
     ArrayList<DataFromBottle> dataFromBottleArrayList;
     int user_id;
 
-    int bottle_capacity = 600;
+    float bottle_capacity;
 
     final static DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public SendData(ArrayList<DataFromBottle> dataFromBottleArrayList, int user_id, int bottle_capacity) {
+    public SendData(ArrayList<DataFromBottle> dataFromBottleArrayList, int user_id, float bottle_capacity) {
         this.dataFromBottleArrayList = dataFromBottleArrayList;
         this.user_id = user_id;
         this.bottle_capacity = bottle_capacity;
