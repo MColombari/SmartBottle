@@ -1,5 +1,6 @@
 package com.example.smartbottleapp.serverInteraction;
 
+import android.util.Log;
 import android.widget.TextView;
 
 import com.example.smartbottleapp.ElementRecycleView;
@@ -25,7 +26,8 @@ public class UpdateWaterDrank implements Runnable{
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                waterDrankTextView.setText(String.valueOf(waterDrank) + "L");
+                Log.v("UpdateWaterDrankDebug", String.format("%.3f", waterDrank) + "L");
+                waterDrankTextView.setText(String.format("%.3f", waterDrank) + " L");
             }
         });
     }
