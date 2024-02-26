@@ -2,6 +2,7 @@ import requests
 import serial
 import serial.tools.list_ports
 import parse
+import sys
 from datetime import datetime
 
 API_URL = "https://yharon.pythonanywhere.com"
@@ -96,4 +97,7 @@ def post_fill(dispenser_id, bottle_id, fill_datetime):
 
 
 if __name__ == '__main__':
-    Bridge('/dev/cu.usbserial-143230').loop()
+    if len(sys.argv) != 2:
+        print("Error number of parameter")
+        exit(1)
+    Bridge(str(sys.argv[1])).loop()
