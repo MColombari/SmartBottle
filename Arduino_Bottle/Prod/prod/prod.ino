@@ -1,7 +1,7 @@
 /*
       PIN Configuration
     Battery:
-      A0 -> A6
+      A0 (Module) -> A6 (Arduino)
     Pressure:
       [A3 - A0]
       Vorltage pertition with a Pull-up resistor (10k ohm).
