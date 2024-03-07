@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
-            android:text="Recomented dispecer:"
+            android:text="Recommended dispensers:"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
