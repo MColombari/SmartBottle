@@ -13,26 +13,16 @@ void setup() {
   pinMode(softtx, OUTPUT);
   
   BTSerial.begin(9600);
-
   Serial.begin(9600);
-  count = 0;
-
 }
 
 void loop() {
-  if (BTSerial.available()>0)
+  if (BTSerial.available())
   {
-    char data = BTSerial.read();
-    count++;
-    Serial.println(count);
-    Serial.print(data);
+    Serial.write(BTSerial.read());
   }
-  if (Serial.available()>0)
+  if (Serial.available())
   {
-    char data = Serial.read();
-    count++;
-    BTSerial.println(count);
-    BTSerial.print(data);
+    BTSerial.write(Serial.read());
   }
-  
 }
