@@ -1,7 +1,7 @@
 # SmartBottle
 
 
-Smart Bottle is a project developed by Pirelli Marco and Colombari M. for the course of IoT and 3D Intelligent System.
+Smart Bottle is a project developed by Pirelli Marco and Colombari Martina. for the course of IoT and 3D Intelligent System.
 The project objective is to develop an ecosystem which help users improve their water drinking habit with an infrastructure of water dispenser and personal water bottle.
 
 
