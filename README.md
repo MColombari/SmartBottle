@@ -14,3 +14,8 @@ Thank to its modular design and open source internal architecture, we encourage 
 
 
 <a target="_blank" href="https://icons8.com/icon/21100/refresh">Refresh</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+
+
+## App Redesign
+
+In this [folder](AppRedesign) you can find this system's app redesign with figma file and relative presentation.
