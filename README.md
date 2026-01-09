@@ -18,4 +18,4 @@ Thank to its modular design and open source internal architecture, we encourage 
 
 ## App Redesign
 
-In this [folder](AppRedesign) you can find this system's app redesign with figma file and relative presentation.
+In this [folder](AppRedesign) you can find this system's app redesign, it contains the figma file and the relative presentation can be visualized in this [link](https://docs.google.com/presentation/d/1zaVYTiuax_qeKSTWNvRFGTr2BWS3d9cVZgYpMrOdAcI/edit?usp=sharing).
